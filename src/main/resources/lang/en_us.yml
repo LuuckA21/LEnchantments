@@ -1,0 +1,7 @@
+prefix: "<gray>[<aqua>MyPlugin<gray>]</gray> "
+welcome: "<green>Welcome back, <argument:0><green>! You have <yellow><argument:1></yellow> coins."
+vampirism: "Vampirism"
+commands:
+  reload:
+    success: "<green>Config reloaded in <argument:0>ms."
+  no-permission: "<red>You don't have permission."

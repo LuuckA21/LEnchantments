@@ -1,0 +1,9 @@
+name: LEnchantments
+version: '${project.version}'
+main: me.luucka.lenchantments.LEnchantments
+bootstrapper: me.luucka.lenchantments.LEnchantmentsBootstrap
+loader: me.luucka.lenchantments.LEnchantmentsLoader
+api-version: '26.1.2'
+description: Custom enchantments for Paper 26.1+
+authors:
+  - Luucka
