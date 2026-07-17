@@ -16,6 +16,8 @@ public final class LEnchantmentKeys {
 
 	public static final TypedKey<Enchantment> EXECUTION = create("execution");
 
+	public static final TypedKey<Enchantment> SECOND_WIND = create("second_wind");
+
 	private static TypedKey<Enchantment> create(final String value) {
 		return EnchantmentKeys.create(Key.key(NAMESPACE, value));
 	}

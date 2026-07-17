@@ -5,10 +5,10 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public interface PostDamageEffect {
+public interface DamageDealtReaction {
 
 	Enchantment enchantment();
-	
-	void apply(Player player, LivingEntity target, ItemStack weapon, int level, double finalDamage);
+
+	void react(Player player, LivingEntity target, ItemStack weapon, int level, double finalDamage);
 
 }

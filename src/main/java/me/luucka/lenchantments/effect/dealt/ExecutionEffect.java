@@ -1,6 +1,6 @@
-package me.luucka.lenchantments.effect.damagemodifying;
+package me.luucka.lenchantments.effect.dealt;
 
-import me.luucka.lenchantments.effect.DamageModifyingEffect;
+import me.luucka.lenchantments.effect.DamageDealtModifier;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.enchantments.Enchantment;
@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Objects;
 
-public final class ExecutionEffect implements DamageModifyingEffect {
+public final class ExecutionEffect implements DamageDealtModifier {
 
 	/**
 	 * Frazione della vita massima sotto cui il bersaglio e' "eseguibile" (0..1).
@@ -21,9 +21,9 @@ public final class ExecutionEffect implements DamageModifyingEffect {
 	 * Moltiplicatore del danno base. Indice 0 = livello I.
 	 */
 	private static final double[] MULTIPLIERS = {
-			1.25,   // I
-			1.45,   // II
-			1.65    // III
+			1.60,   // I
+			2.05,   // II
+			2.50    // III
 	};
 
 	public static final int MAX_LEVEL = MULTIPLIERS.length;
@@ -55,8 +55,11 @@ public final class ExecutionEffect implements DamageModifyingEffect {
 		final double maxHealth = attribute.getValue();
 		if (maxHealth <= 0) return currentDamage;
 
-		// getHealth() qui e' la vita PRIMA che il colpo venga applicato
-		if (target.getHealth() / maxHealth >= HEALTH_THRESHOLD) return currentDamage;
+		// i cuori gialli contano: chi ha appena mangiato una mela d'oro non e' eseguibile.
+		// getHealth() e' la vita PRIMA che il colpo venga applicato.
+		final double effectiveHealth = target.getHealth() + target.getAbsorptionAmount();
+
+		if (effectiveHealth / maxHealth >= HEALTH_THRESHOLD) return currentDamage;
 
 		return currentDamage * multiplier;
 	}

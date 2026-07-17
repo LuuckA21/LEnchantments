@@ -1,7 +1,6 @@
-package me.luucka.lenchantments.effect.postdamage;
+package me.luucka.lenchantments.effect.dealt;
 
-import me.luucka.lenchantments.effect.PostDamageEffect;
-import me.luucka.lenchantments.util.ChanceUtil;
+import me.luucka.lenchantments.effect.DamageDealtReaction;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -11,22 +10,21 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public final class VampirismEffect implements PostDamageEffect {
+public final class VampirismEffect implements DamageDealtReaction {
 
 	/**
-	 * @param activation probabilità di attivazione (0..1)
-	 * @param healRatio  frazione del danno convertita in cura (0..1)
-	 * @param maxHeal    cura massima per colpo, in punti vita (2 pv = 1 cuore)
+	 * @param healRatio frazione del danno convertita in cura (0..1)
+	 * @param maxHeal   cura massima per colpo, in punti vita (2 pv = 1 cuore)
 	 */
-	private record Tier(double activation, double healRatio, double maxHeal) {
+	private record Tier(double healRatio, double maxHeal) {
 	}
 
 	// indice 0 = livello I
 	private static final Tier[] TIERS = {
-			new Tier(0.08, 0.10, 2.0),   // I    8%  | 10% | 2 pv   / 1 cuore
-			new Tier(0.12, 0.15, 2.5),   // II   12% | 15% | 2.5 pv / 1.25 cuori
-			new Tier(0.16, 0.20, 3.0),   // III  16% | 20% | 3 pv   / 1.5 cuori
-			new Tier(0.20, 0.25, 4.0)    // IV   20% | 25% | 4 pv   / 2 cuori
+			new Tier(0.04, 1.0),   // I    4%  | max 1.0 pv / 0.5 cuori
+			new Tier(0.06, 1.5),   // II   6%  | max 1.5 pv / 0.75 cuori
+			new Tier(0.08, 2.0),   // III  8%  | max 2.0 pv / 1 cuore
+			new Tier(0.10, 3.0)    // IV   10% | max 3.0 pv / 1.5 cuori
 	};
 
 	public static final int MAX_LEVEL = TIERS.length;
@@ -43,7 +41,7 @@ public final class VampirismEffect implements PostDamageEffect {
 	}
 
 	@Override
-	public void apply(final Player player,
+	public void react(final Player player,
 	                  final LivingEntity target,
 	                  final ItemStack weapon,
 	                  final int level,
@@ -51,8 +49,6 @@ public final class VampirismEffect implements PostDamageEffect {
 
 		final Tier tier = tierFor(level);
 		if (tier == null) return;
-
-		if (!ChanceUtil.succeeds(tier.activation())) return;
 
 		final double healed = Math.min(finalDamage * tier.healRatio(), tier.maxHeal());
 		if (healed <= 0) return;

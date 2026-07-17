@@ -1,14 +1,17 @@
 package me.luucka.lenchantments;
 
-import me.luucka.lenchantments.effect.DamageModifyingEffect;
-import me.luucka.lenchantments.effect.PostDamageEffect;
-import me.luucka.lenchantments.effect.damagemodifying.ExecutionEffect;
-import me.luucka.lenchantments.effect.postdamage.VampirismEffect;
+import me.luucka.lenchantments.effect.DamageDealtModifier;
+import me.luucka.lenchantments.effect.DamageDealtReaction;
+import me.luucka.lenchantments.effect.DamageTakenReaction;
+import me.luucka.lenchantments.effect.dealt.ExecutionEffect;
+import me.luucka.lenchantments.effect.dealt.VampirismEffect;
+import me.luucka.lenchantments.effect.taken.SecondWindEffect;
 import me.luucka.lenchantments.lang.LanguageManager;
-import me.luucka.lenchantments.listener.DamageModifyingEffectListener;
-import me.luucka.lenchantments.listener.PostDamageEffectListener;
+import me.luucka.lenchantments.listener.DamageDealtListener;
+import me.luucka.lenchantments.listener.DamageTakenListener;
 import me.luucka.lenchantments.registry.LEnchantmentList;
 import me.luucka.lenchantments.registry.registration.LEnchantmentRegistration;
+import me.luucka.lenchantments.util.CooldownStore;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -75,16 +78,25 @@ public final class LEnchantments extends JavaPlugin {
 	}
 
 	private void registerEnchantmentListeners() {
-		final List<DamageModifyingEffect> damageModifyingEffects = List.of(
+		final CooldownStore cooldowns = new CooldownStore();
+
+		final List<DamageDealtModifier> dealtModifiers = List.of(
 				new ExecutionEffect(LEnchantmentRegistration.EXECUTION.enchantment())
 		);
 
-		final List<PostDamageEffect> postDamageEffects = List.of(
+		final List<DamageDealtReaction> dealtReactions = List.of(
 				new VampirismEffect(LEnchantmentRegistration.VAMPIRISM.enchantment())
 		);
 
+		final List<DamageTakenReaction> takenReactions = List.of(
+				new SecondWindEffect(LEnchantmentRegistration.SECOND_WIND.enchantment(), cooldowns)
+		);
+
 		final PluginManager pm = getServer().getPluginManager();
-		pm.registerEvents(new DamageModifyingEffectListener(damageModifyingEffects), this);
-		pm.registerEvents(new PostDamageEffectListener(postDamageEffects), this);
+		pm.registerEvents(new DamageDealtListener(dealtModifiers, dealtReactions), this);
+		pm.registerEvents(new DamageTakenListener(this, takenReactions), this);
+
+		// purga le voci scadute ogni 5 minuti
+		getServer().getScheduler().runTaskTimer(this, cooldowns::purgeExpired, 6000L, 6000L);
 	}
 }
