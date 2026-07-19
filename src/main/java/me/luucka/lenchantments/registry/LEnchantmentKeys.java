@@ -18,6 +18,8 @@ public final class LEnchantmentKeys {
 
 	public static final TypedKey<Enchantment> SECOND_WIND = create("second_wind");
 
+	public static final TypedKey<Enchantment> BULWARK = create("bulwark");
+
 	private static TypedKey<Enchantment> create(final String value) {
 		return EnchantmentKeys.create(Key.key(NAMESPACE, value));
 	}

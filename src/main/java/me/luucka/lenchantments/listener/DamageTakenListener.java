@@ -1,5 +1,7 @@
 package me.luucka.lenchantments.listener;
 
+import me.luucka.lcore.log.LLogger;
+import me.luucka.lenchantments.effect.DamageTakenModifier;
 import me.luucka.lenchantments.effect.DamageTakenReaction;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -18,15 +20,44 @@ import java.util.Map;
 public final class DamageTakenListener implements Listener {
 
 	private final Plugin plugin;
+	private final List<DamageTakenModifier> modifiers;
 	private final List<DamageTakenReaction> reactions;
 
-	public DamageTakenListener(final Plugin plugin, final List<DamageTakenReaction> reactions) {
+	public DamageTakenListener(final Plugin plugin, final List<DamageTakenModifier> modifiers, final List<DamageTakenReaction> reactions) {
 		this.plugin = plugin;
+		this.modifiers = List.copyOf(modifiers);
 		this.reactions = List.copyOf(reactions);
 	}
 
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	public void onModify(EntityDamageEvent event) {
+		if (!(event.getEntity() instanceof Player player)) return;
+
+		final double baseDamage = event.getDamage();
+		if (baseDamage <= 0) return;
+
+		final EntityEquipment equipment = player.getEquipment();
+		if (equipment.getArmorContents().length == 0) {
+			return;
+		}
+
+		double damage = baseDamage;
+
+		for (final DamageTakenModifier modifier : this.modifiers) {
+			final int level = armorLevel(equipment, modifier.enchantment());
+			if (level >= 1) {
+				damage = modifier.modify(player, level, damage);
+			}
+		}
+
+		if (!Double.isFinite(damage) || damage < 0) return;
+		if (damage != baseDamage) event.setDamage(damage);
+
+		LLogger.debug("Damage taken: {} -> {} | final: {}", baseDamage, damage, event.getFinalDamage());
+	}
+
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public void onDamage(EntityDamageEvent event) {
+	public void onReact(EntityDamageEvent event) {
 		if (!(event.getEntity() instanceof Player player)) {
 			return;
 		}

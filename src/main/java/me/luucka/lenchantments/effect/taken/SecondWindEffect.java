@@ -1,5 +1,6 @@
 package me.luucka.lenchantments.effect.taken;
 
+import me.luucka.lcore.log.LLogger;
 import me.luucka.lenchantments.effect.DamageTakenReaction;
 import me.luucka.lenchantments.util.CooldownStore;
 import org.bukkit.attribute.Attribute;
@@ -70,10 +71,9 @@ public final class SecondWindEffect implements DamageTakenReaction {
 		// il cooldown si consuma SOLO se l'effetto scatta davvero
 		if (!this.cooldowns.tryUse(player, tier.cooldownMillis())) return;
 
-		player.addPotionEffect(new PotionEffect(
-				PotionEffectType.ABSORPTION, SHIELD_DURATION_TICKS, tier.absorptionAmplifier()));
-		player.addPotionEffect(new PotionEffect(
-				PotionEffectType.SPEED, SPEED_DURATION_TICKS, tier.speedAmplifier()));
+		player.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, SHIELD_DURATION_TICKS, tier.absorptionAmplifier()));
+		player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, SPEED_DURATION_TICKS, tier.speedAmplifier()));
+		LLogger.debug("Second Wind {}: {} - absorption: {}, speed: {}", level, player.getName(), tier.absorptionAmplifier(), tier.speedAmplifier());
 	}
 
 	private static @Nullable Tier tierFor(final int level) {

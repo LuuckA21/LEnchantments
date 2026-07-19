@@ -1,5 +1,6 @@
 package me.luucka.lenchantments.effect.dealt;
 
+import me.luucka.lcore.log.LLogger;
 import me.luucka.lenchantments.effect.DamageDealtModifier;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -40,12 +41,7 @@ public final class ExecutionEffect implements DamageDealtModifier {
 	}
 
 	@Override
-	public double modify(final Player player,
-	                     final LivingEntity target,
-	                     final ItemStack weapon,
-	                     final int level,
-	                     final double currentDamage) {
-
+	public double modify(final Player player, final LivingEntity target, final ItemStack weapon, final int level, final double currentDamage) {
 		final double multiplier = multiplierFor(level);
 		if (multiplier <= 1.0) return currentDamage;
 
@@ -61,6 +57,7 @@ public final class ExecutionEffect implements DamageDealtModifier {
 
 		if (effectiveHealth / maxHealth >= HEALTH_THRESHOLD) return currentDamage;
 
+		LLogger.debug("Execution {}: {} - {} * {} = {}", level, player.getName(), currentDamage, multiplier, (currentDamage * multiplier));
 		return currentDamage * multiplier;
 	}
 

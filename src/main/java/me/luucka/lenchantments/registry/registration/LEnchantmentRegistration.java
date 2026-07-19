@@ -8,6 +8,7 @@ import io.papermc.paper.registry.keys.tags.ItemTypeTagKeys;
 import io.papermc.paper.registry.tag.Tag;
 import me.luucka.lenchantments.effect.dealt.ExecutionEffect;
 import me.luucka.lenchantments.effect.dealt.VampirismEffect;
+import me.luucka.lenchantments.effect.taken.BulwarkEffect;
 import me.luucka.lenchantments.effect.taken.SecondWindEffect;
 import me.luucka.lenchantments.registry.LEnchantmentKeys;
 import me.luucka.lenchantments.registry.LEnchantmentList;
@@ -61,6 +62,22 @@ public enum LEnchantmentRegistration implements EnchantmentRegistration {
 					.primaryItems(armor)
 					.weight(2)
 					.maxLevel(SecondWindEffect.MAX_LEVEL)
+					.minimumCost(EnchantmentRegistryEntry.EnchantmentCost.of(15, 9))
+					.maximumCost(EnchantmentRegistryEntry.EnchantmentCost.of(45, 9))
+					.anvilCost(4)
+					.activeSlots(EquipmentSlotGroup.ARMOR);
+		}
+	},
+
+	BULWARK(LEnchantmentKeys.BULWARK) {
+		@Override
+		public void configure(RegistryComposeEvent<Enchantment, EnchantmentRegistryEntry.Builder> event, EnchantmentRegistryEntry.Builder builder) {
+			Tag<ItemType> armor = event.getOrCreateTag(ItemTypeTagKeys.ENCHANTABLE_ARMOR);
+			builder.description(Component.text("Bulwark"))
+					.supportedItems(armor)
+					.primaryItems(armor)
+					.weight(2)
+					.maxLevel(BulwarkEffect.MAX_LEVEL)
 					.minimumCost(EnchantmentRegistryEntry.EnchantmentCost.of(15, 9))
 					.maximumCost(EnchantmentRegistryEntry.EnchantmentCost.of(45, 9))
 					.anvilCost(4)

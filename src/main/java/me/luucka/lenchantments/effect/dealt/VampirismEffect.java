@@ -1,5 +1,6 @@
 package me.luucka.lenchantments.effect.dealt;
 
+import me.luucka.lcore.log.LLogger;
 import me.luucka.lenchantments.effect.DamageDealtReaction;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.LivingEntity;
@@ -41,12 +42,7 @@ public final class VampirismEffect implements DamageDealtReaction {
 	}
 
 	@Override
-	public void react(final Player player,
-	                  final LivingEntity target,
-	                  final ItemStack weapon,
-	                  final int level,
-	                  final double finalDamage) {
-
+	public void react(final Player player, final LivingEntity target, final ItemStack weapon, final int level, final double finalDamage) {
 		final Tier tier = tierFor(level);
 		if (tier == null) return;
 
@@ -54,6 +50,7 @@ public final class VampirismEffect implements DamageDealtReaction {
 		if (healed <= 0) return;
 
 		player.heal(healed, EntityRegainHealthEvent.RegainReason.MAGIC);
+		LLogger.debug("Vampirism {}: {} healed {} pv", level, player.getName(), healed);
 	}
 
 	private static @Nullable Tier tierFor(final int level) {

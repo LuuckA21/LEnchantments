@@ -1,9 +1,8 @@
 package me.luucka.lenchantments.setting;
 
 import lombok.Getter;
+import me.luucka.lcore.config.SimpleConfig;
 import me.luucka.lenchantments.LEnchantments;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.Bukkit;
 import org.simpleyaml.configuration.implementation.api.QuoteStyle;
 
 public final class Config extends SimpleConfig {
@@ -43,13 +42,12 @@ public final class Config extends SimpleConfig {
 
 	@Override
 	protected void footer() {
-		file.setFooter("FOOTER COMMENT");
 	}
 
 	@Override
 	protected void loadValues() {
 		this.prefix = file.getString("prefix");
-		Bukkit.getConsoleSender().sendMessage(MiniMessage.miniMessage().deserialize(prefix + "<gray>Config loaded!"));
+		this.debug = file.getBoolean("debug");
 	}
 
 	@Override
@@ -58,18 +56,17 @@ public final class Config extends SimpleConfig {
 				.comment("Prefix for the plugin messages")
 				.set("<gray>[<gradient:#C77DFF:#48CAE4><bold>✦ LEnchantments</bold></gradient><gray>] <reset>", QuoteStyle.DOUBLE);
 
-		file.path("newkey")
-				.comment("A new key")
-				.set("value", QuoteStyle.DOUBLE);
-
-		file.path("asdrubale")
-				.comment("Asdrubale key\nfrom version 1.2")
-				.set(5.5D, QuoteStyle.DOUBLE);
+		file.path("debug")
+				.comment("Enables debug messages")
+				.set(false);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 
 	@Getter
 	private String prefix;
+
+	@Getter
+	private boolean debug;
 
 }

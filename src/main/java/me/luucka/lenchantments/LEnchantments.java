@@ -1,102 +1,78 @@
 package me.luucka.lenchantments;
 
-import me.luucka.lenchantments.effect.DamageDealtModifier;
-import me.luucka.lenchantments.effect.DamageDealtReaction;
-import me.luucka.lenchantments.effect.DamageTakenReaction;
+import me.luucka.lcore.LCorePlugin;
 import me.luucka.lenchantments.effect.dealt.ExecutionEffect;
 import me.luucka.lenchantments.effect.dealt.VampirismEffect;
+import me.luucka.lenchantments.effect.taken.BulwarkEffect;
 import me.luucka.lenchantments.effect.taken.SecondWindEffect;
 import me.luucka.lenchantments.lang.LanguageManager;
+import me.luucka.lenchantments.listener.BulwarkCleanupListener;
 import me.luucka.lenchantments.listener.DamageDealtListener;
 import me.luucka.lenchantments.listener.DamageTakenListener;
 import me.luucka.lenchantments.registry.LEnchantmentList;
 import me.luucka.lenchantments.registry.registration.LEnchantmentRegistration;
+import me.luucka.lenchantments.setting.Config;
 import me.luucka.lenchantments.util.CooldownStore;
-import org.bukkit.Bukkit;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
-import java.util.Objects;
 
-public final class LEnchantments extends JavaPlugin {
+public final class LEnchantments extends LCorePlugin {
 
 	private static LEnchantments instance;
 
 	private LanguageManager languageManager;
 
 	@Override
-	public void onLoad() {
-		try {
-			getInstance();
-		} catch (final Throwable throwable) {
-			this.setEnabled(false);
-		}
-	}
-
-	@Override
-	public void onEnable() {
-//		this.languageManager = new LanguageManager(this);
-//		languageManager.load();
-//		GlobalTranslator.translator().addSource(languageManager);
-
+	protected void onPluginStart() {
+		Config.init(this);
 		LEnchantmentList.initialize();
 		registerEnchantmentListeners();
-
-//		Config.init(this);
-	}
-
-	@Override
-	public void onDisable() {
-		Objects.requireNonNull(instance, "Instance of " + this.getDataFolder().getName() + " already nulled!");
-		instance = null;
-//		if (this.languageManager != null) {
-//			GlobalTranslator.translator().removeSource(this.languageManager);
-//		}
-	}
-
-	public static LEnchantments getInstance() {
-		if (instance == null) {
-			try {
-				instance = JavaPlugin.getPlugin(LEnchantments.class);
-
-			} catch (final IllegalStateException ex) {
-				if (Bukkit.getPluginManager().getPlugin("PlugMan") != null || Bukkit.getPluginManager().getPlugin("PlugManX") != null)
-					Bukkit.getLogger().severe("Failed to get instance of the plugin, if you reloaded using PlugMan you need to do a clean restart instead.");
-
-				throw ex;
-			}
-
-			Objects.requireNonNull(instance, "Cannot get a new instance! Have you reloaded?");
-		}
-
-		return instance;
-	}
-
-	public void reloadLanguages() {
-//		this.languageManager.load();
 	}
 
 	private void registerEnchantmentListeners() {
 		final CooldownStore cooldowns = new CooldownStore();
 
-		final List<DamageDealtModifier> dealtModifiers = List.of(
-				new ExecutionEffect(LEnchantmentRegistration.EXECUTION.enchantment())
+		final BulwarkEffect bulwark = new BulwarkEffect(reg(LEnchantmentRegistration.BULWARK));
+
+		final DamageDealtListener dealt = new DamageDealtListener(
+				// DamageDealtModifier
+				List.of(new ExecutionEffect(reg(LEnchantmentRegistration.EXECUTION))),   // modifier, HIGH
+
+				// DamageDealtReaction
+				List.of(new VampirismEffect(reg(LEnchantmentRegistration.VAMPIRISM)))    // reaction, MONITOR
 		);
 
-		final List<DamageDealtReaction> dealtReactions = List.of(
-				new VampirismEffect(LEnchantmentRegistration.VAMPIRISM.enchantment())
-		);
+		final DamageTakenListener taken = new DamageTakenListener(this,
+				// DamageTakenModifier
+				List.of(bulwark),                                              // modifier, HIGH
 
-		final List<DamageTakenReaction> takenReactions = List.of(
-				new SecondWindEffect(LEnchantmentRegistration.SECOND_WIND.enchantment(), cooldowns)
+				// DamageTakenReaction
+				List.of(new SecondWindEffect(reg(LEnchantmentRegistration.SECOND_WIND), cooldowns))     // reaction, MONITOR
 		);
 
 		final PluginManager pm = getServer().getPluginManager();
-		pm.registerEvents(new DamageDealtListener(dealtModifiers, dealtReactions), this);
-		pm.registerEvents(new DamageTakenListener(this, takenReactions), this);
+		pm.registerEvents(dealt, this);
+		pm.registerEvents(taken, this);
+		pm.registerEvents(new BulwarkCleanupListener(bulwark), this);
 
-		// purga le voci scadute ogni 5 minuti
 		getServer().getScheduler().runTaskTimer(this, cooldowns::purgeExpired, 6000L, 6000L);
+	}
+
+	private static Enchantment reg(final LEnchantmentRegistration r) {
+		return r.enchantment();
+	}
+
+	@Override
+	public String[] getStartupLogo() {
+		return new String[]{
+				" _     _____            _                 _                        _       ",
+				"| |   | ____|_ __   ___| |__   __ _ _ __ | |_ _ __ ___   ___ _ __ | |_ ___ ",
+				"| |   |  _| | '_ \\ / __| '_ \\ / _` | '_ \\| __| '_ ` _ \\ / _ \\ '_ \\| __/ __|",
+				"| |___| |___| | | | (__| | | | (_| | | | | |_| | | | | |  __/ | | | |_\\__ \\",
+				"|_____|_____|_| |_|\\___|_| |_|\\__,_|_| |_|\\__|_| |_| |_|\\___|_| |_|\\__|___/",
+				"                                                                           "
+		};
 	}
 }

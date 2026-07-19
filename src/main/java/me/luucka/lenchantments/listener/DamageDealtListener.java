@@ -1,5 +1,6 @@
 package me.luucka.lenchantments.listener;
 
+import me.luucka.lcore.log.LLogger;
 import me.luucka.lenchantments.effect.DamageDealtModifier;
 import me.luucka.lenchantments.effect.DamageDealtReaction;
 import org.bukkit.entity.LivingEntity;
@@ -65,7 +66,7 @@ public final class DamageDealtListener implements Listener {
 			event.setDamage(damage);
 		}
 
-		System.out.println("base " + baseDamage + " -> " + damage + " | final " + event.getFinalDamage());
+		LLogger.debug("Damage dealt: {} -> {} | final: {}", baseDamage, damage, event.getFinalDamage());
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
